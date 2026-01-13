@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>A4 - DE / POR</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to top, #FFA726, #ffffff);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .logo-container img {
+      height: 60px;
+    }
+
+    .input-group {
+      margin: 20px auto;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+      width: 250px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #FF6400;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #e05800;
+    }
+
+    .preview-area {
+      background-color: white;
+      width: 210mm;
+      height: 297mm;
+      border: 1px solid #ccc;
+      margin: 30px auto;
+      position: relative;
+    }
+
+    .item {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .pre {
+      white-space: pre; /* RESPEITA ESPAÇOS DIGITADOS */
+    }
+
+   #produto-box {
+    top: 32%;
+    font-size: 50px;
+}
+
+ #de-label {
+    top: 43%;
+    font-size: 22px;
+}
+
+    #de-value {
+      top: 47%;
+      font-size: 76px;
+    }
+
+    #por-label {
+      top: 64%;
+      font-size: 22px;
+    }
+
+    #por-value {
+      top: 70%;
+      font-size: 150px;
+    }
+
+    .back-button {
+      margin-top: 30px;
+    }
+
+    .back-button a {
+      text-decoration: none;
+    }
+
+    .back-button button {
+      background-color: #FF7043;
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .back-button button:hover {
+      background-color: #e64a19;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-container">
+    <img src="logo.png" alt="Logo da Farmácia" />
+  </div>
+
+  <h2>A4 - Etiqueta DE / POR</h2>
+
+  <div class="input-group">
+    <input type="text" id="produto" placeholder="Nome do Produto" />
+    <input type="text" id="valor-de" placeholder="DE:" />
+    <input type="text" id="valor-por" placeholder="POR:" />
+    <br />
+    <button onclick="atualizarPreview()">Atualizar Prévia</button>
+    <button onclick="gerarPDF()">Gerar PDF</button>
+  </div>
+
+  <!-- Área da etiqueta -->
+  <div id="preview" class="preview-area">
+    <div class="box"></div>
+
+    <!-- Produto -->
+    <div id="produto-box" class="item"></div>
+
+    <!-- DE: R$         CADA --> 
+    <div id="de-label" class="item pre">DE R$:                                                                                        CADA</div>
+
+    <!-- Valor DE -->
+    <div id="de-value" class="item"></div>
+
+    <!-- POR: R$        CADA -->
+    <div id="por-label" class="item pre">POR R$:                                                                                     CADA</div>
+
+    <!-- Valor POR -->
+    <div id="por-value" class="item"></div>
+  </div>
+
+  <div class="back-button">
+    <a href="index.html"><button>Voltar ao Menu</button></a>
+  </div>
+
+  <script>
+    function atualizarPreview() {
+      const produto = document.getElementById('produto').value;
+      const de = document.getElementById('valor-de').value;
+      const por = document.getElementById('valor-por').value;
+
+      document.getElementById('produto-box').innerText = produto;
+      document.getElementById('de-value').innerText = de;
+      document.getElementById('por-value').innerText = por;
+    }
+
+    async function gerarPDF() {
+      const { jsPDF } = window.jspdf;
+      const preview = document.getElementById("preview");
+      const canvas = await html2canvas(preview, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL("image/png");
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      doc.addImage(imgData, "PNG", 0, 0, 210, 297);
+      window.open(doc.output("bloburl"), "_blank");
+    }
+  </script>
+</body>
+</html>

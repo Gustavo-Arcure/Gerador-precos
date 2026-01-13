@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>A4 - Preço</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to top, #FFCCBC, #ffffff);
+  margin: 0;
+  padding: 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.preco-logo-container { margin-bottom: 20px; }
+.preco-logo-container img { height: 60px; }
+
+h2 { color: #333; margin-bottom: 30px; }
+
+.preco-input-group {
+  margin: 20px auto;
+}
+
+.preco-input, .preco-button {
+  padding: 10px;
+  font-size: 16px;
+  margin: 10px;
+  width: 250px;
+  box-sizing: border-box;
+}
+
+.preco-button {
+  display: inline-block;
+  margin: 10px auto;
+  padding: 15px 30px;
+  font-size: 18px;
+  background-color: #FF7043;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  width: 300px;
+  transition: background-color 0.3s ease;
+}
+.preco-button:hover { background-color: #e64a19; }
+
+.preco-preview-area {
+  background-color: white;
+  width: 210mm;
+  height: 297mm;
+  border: 1px solid #ccc;
+  margin: 30px auto;
+  position: relative;
+}
+
+/* Nome do produto: até 2 linhas, sem mexer nas posições */
+#preco-produto {
+  position: absolute;
+  top: 39%;  /* mantém posição original */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 75px;
+  font-weight: bold;
+  height: 140px;       /* altura suficiente para 2 linhas */
+  line-height: 70px;   /* altura da linha */
+  overflow: hidden;    /* corta se passar de 2 linhas */
+  text-align: center;
+}
+
+/* Texto "POR R$: ... CADA" com espaçamento proporcional */
+.preco-label {
+  position: absolute;
+  top: 63%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
+  font-weight: bold;
+  width: 60%;
+  display: flex;
+  justify-content: space-between; /* POR R$ e CADA nas extremidades */
+  align-items: center;
+}
+
+.preco-label .por-rs { text-align: left; }
+.preco-label .cada { text-align: right; }
+
+/* Valor */
+#preco-valor {
+  position: absolute;
+  top: 67%;
+  left: 49%;
+  transform: translateX(-50%);
+  font-size: 162px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.preco-back { margin-top: 30px; }
+
+footer {
+  background-color: #FF7043;
+  color: white;
+  text-align: center;
+  padding: 15px 10px;
+  font-size: 14px;
+  margin-top: auto;
+}
+</style>
+</head>
+<body>
+
+<div class="preco-logo-container">
+  <img src="logo.png" alt="Logo da Farmácia" />
+</div>
+
+<h2>A4 - Etiqueta de Preço</h2>
+
+<div class="preco-input-group">
+  <input type="text" id="preco-produto-input" class="preco-input" placeholder="Nome do Produto" />
+  <input type="text" id="preco-valor-input" class="preco-input" placeholder="Valor do Produto" />
+  <br />
+  <button class="preco-button" onclick="precoAtualizarPreview()">Atualizar Prévia</button>
+  <button class="preco-button" onclick="precoGerarPDF()">Gerar PDF</button>
+</div>
+
+<div id="preco-preview" class="preco-preview-area">
+  <div id="preco-produto" class="preco-box"></div>
+  <div class="preco-label">
+    <span class="por-rs">POR R$:</span>
+    <span class="cada">CADA</span>
+  </div>
+  <div id="preco-valor" class="preco-box"></div>
+</div>
+
+<div class="preco-back">
+  <a href="index.html" class="preco-button">Voltar ao Menu</a>
+</div>
+
+<footer>
+  © 2025 Gustavo Bispo dos Santos. Todos os direitos reservados.
+</footer>
+
+<script>
+function precoAtualizarPreview() {
+  const produto = document.getElementById('preco-produto-input').value;
+  const valor = document.getElementById('preco-valor-input').value;
+
+  document.getElementById('preco-produto').innerText = produto;
+  document.getElementById('preco-valor').innerText = valor;
+}
+
+async function precoGerarPDF() {
+  const { jsPDF } = window.jspdf;
+  const preview = document.getElementById("preco-preview");
+  const canvas = await html2canvas(preview, { scale: 2, useCORS: true });
+  const imgData = canvas.toDataURL("image/png");
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  doc.addImage(imgData, "PNG", 0, 0, 210, 297);
+  window.open(doc.output("bloburl"), "_blank");
+}
+</script>
+
+</body>
+</html>

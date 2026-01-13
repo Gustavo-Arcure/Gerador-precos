@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>A4 - Duas Etiquetas Lado a Lado</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to top, #FFA726, #ffffff);
+    padding: 20px;
+    text-align: center;
+}
+
+.logo-container img {
+    height: 60px;
+}
+
+.input-group {
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+.input-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+    width: 200px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #FF6400;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #e05800;
+}
+
+.preview-area {
+    background-color: white;
+    width: 210mm;
+    min-height: 297mm;
+    border: 1px solid #ccc;
+    margin: 30px auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 10mm;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* Guia vertical central (só visual, não aparece na impressão) */
+.preview-area::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: #bbb;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.box {
+    width: 95mm;
+    height: 180mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    padding: 20px;
+    box-sizing: border-box;
+    /* remove border */
+    border: none;
+}
+
+.box h3 {
+  font-size: 29px;
+  font-weight: bold;
+  margin: 581px 0px 73px 0;
+}
+
+.price-line {
+    display: flex;
+    justify-content: center; /* centraliza o preço horizontalmente */
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 20px; /* ajuste vertical do preço */
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.box p {
+    font-size: 64px;
+    font-weight: bold;
+    margin: 0;
+    text-align: center; /* centraliza o valor */
+}
+
+.back-button {
+    margin-top: 30px;
+}
+
+.back-button a {
+    text-decoration: none;
+}
+
+.back-button button {
+    background-color: #FF7043;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.back-button button:hover {
+    background-color: #e64a19;
+}
+</style>
+</head>
+<body>
+
+<div class="logo-container">
+    <img src="logo.png" alt="Logo da Farmácia" />
+</div>
+
+<h2>A4 - Duas Etiquetas Lado a Lado</h2>
+
+<div class="input-group">
+    <div class="input-row">
+        <input type="text" id="produto1" placeholder="Nome Produto 1" />
+        <input type="text" id="produto2" placeholder="Nome Produto 2" />
+    </div>
+    <div class="input-row">
+        <input type="text" id="valor1" placeholder="Valor Produto 1" />
+        <input type="text" id="valor2" placeholder="Valor Produto 2" />
+    </div>
+    <button onclick="atualizarPreview()">Atualizar Prévia</button>
+    <button onclick="gerarPDF()">Gerar PDF</button>
+</div>
+
+<div id="preview" class="preview-area">
+    <!-- ETIQUETA 1 -->
+    <div id="box1" class="box">
+        <h3 id="produto1-box"></h3>
+        <div class="price-line">
+            <span>POR R$:</span>
+            <span>CADA</span>
+        </div>
+        <p id="valor1-box"></p>
+    </div>
+    <!-- ETIQUETA 2 -->
+    <div id="box2" class="box">
+        <h3 id="produto2-box"></h3>
+        <div class="price-line">
+            <span>POR R$:</span>
+            <span>CADA</span>
+        </div>
+        <p id="valor2-box"></p>
+    </div>
+</div>
+
+<div class="back-button">
+    <a href="index.html"><button>Voltar ao Menu</button></a>
+</div>
+
+<script>
+function atualizarPreview() {
+    document.getElementById('produto1-box').innerText = document.getElementById('produto1').value;
+    document.getElementById('valor1-box').innerText = document.getElementById('valor1').value;
+    document.getElementById('produto2-box').innerText = document.getElementById('produto2').value;
+    document.getElementById('valor2-box').innerText = document.getElementById('valor2').value;
+}
+
+async function gerarPDF() {
+    const { jsPDF } = window.jspdf;
+    const preview = document.getElementById("preview");
+
+    // Clonar a área de preview para remover a linha guia na geração de PDF
+    const clone = preview.cloneNode(true);
+    clone.style.position = "absolute";
+    clone.style.left = "-9999px";
+    clone.querySelectorAll("::before"); // pseudo-elemento não será renderizado
+    document.body.appendChild(clone);
+
+    const canvas = await html2canvas(clone, { scale: 2, useCORS: true });
+    const imgData = canvas.toDataURL("image/png");
+    document.body.removeChild(clone);
+
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    doc.addImage(imgData, "PNG", 0, 0, 210, 297);
+    window.open(doc.output("bloburl"), "_blank");
+}
+</script>
+
+</body>
+</html>
